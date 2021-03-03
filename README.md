@@ -1,2 +1,2 @@
 # AnalisadorLexico
-Analisador Léxico criado para a disciplina MI - Processadores de Linguagens de Programação
+Analisador Léxico criado para a disciplina MI - Processadores de Linguagem de Programação
