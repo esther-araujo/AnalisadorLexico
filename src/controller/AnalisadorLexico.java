@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package classes;
+package controller;
 
 import java.util.HashSet;
 import java.io.FileNotFoundException;
@@ -117,15 +117,12 @@ public class AnalisadorLexico {
     public void addToken(String palavra, int line) {
 
         if (palavrasReservadas.contains(palavra)) {
-            System.out.println(line+" KEY "+palavra);
+            System.out.println(String.format("%04d", line)+" KEY "+palavra);
             return;
         } 
         else {
-            //if (palavra.matches(identificador)) {
-                System.out.println(line+" IDE "+palavra);
+                System.out.println(String.format("%04d", line)+" IDE "+palavra);
                 return;
-           // }
-
         }
 
     }
