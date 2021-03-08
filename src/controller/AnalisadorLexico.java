@@ -7,9 +7,11 @@ package controller;
 
 import java.util.HashSet;
 import java.io.FileNotFoundException;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import model.Arquivo;
+import util.ReconhecedorCaracteres;
 
 /**
  *
@@ -17,13 +19,13 @@ import java.io.IOException;
  */
 public class AnalisadorLexico {
 
-    private BufferedReader codigo;
+    private Iterator linhas;
     private String linha;
     private String lexema;
-    private static HashSet<String> palavrasReservadas = new HashSet();
-    private static HashSet delimitadores = new HashSet();
-    private static HashSet operadoresLog = new HashSet();
-    private static HashSet operadoresRel = new HashSet();
+    private static final HashSet<String> palavrasReservadas = new HashSet();
+    private static final HashSet delimitadores = new HashSet();
+    private static final HashSet operadoresLog = new HashSet();
+    private static final HashSet operadoresRel = new HashSet();
     private String identificador = "[a-z]|[A-Z])(([a-z]|[A-Z])|[0-9]|_";
 
     int estado = 0;
@@ -31,98 +33,114 @@ public class AnalisadorLexico {
     boolean fimCodigo = false;
 
     public AnalisadorLexico(String pathFile) {
-        try {
-
-            palavrasReservadas.add("var");
-            palavrasReservadas.add("const");
-            palavrasReservadas.add("typedef");
-            palavrasReservadas.add("struct");
-            palavrasReservadas.add("extends");
-            palavrasReservadas.add("procedure");
-            palavrasReservadas.add("function");
-            palavrasReservadas.add("start");
-            palavrasReservadas.add("return");
-            palavrasReservadas.add("if");
-            palavrasReservadas.add("else");
-            palavrasReservadas.add("then");
-            palavrasReservadas.add("while");
-            palavrasReservadas.add("read");
-            palavrasReservadas.add("print");
-            palavrasReservadas.add("int");
-            palavrasReservadas.add("real");
-            palavrasReservadas.add("boolean");
-            palavrasReservadas.add("string");
-            palavrasReservadas.add("true");
-            palavrasReservadas.add("false");
-            palavrasReservadas.add("global");
-            palavrasReservadas.add("local");
-
-            delimitadores.add(";");
-            delimitadores.add(",");
-            delimitadores.add("(");
-            delimitadores.add(")");
-            delimitadores.add("[");
-            delimitadores.add("]");
-            delimitadores.add("{");
-            delimitadores.add("}");
-
-            operadoresRel.add("<");
-            operadoresRel.add(">");
-            operadoresRel.add("==");
-            operadoresRel.add("!=");
-            operadoresRel.add(">=");
-            operadoresRel.add("<=");
-            operadoresRel.add("=");
-
-            operadoresLog.add("&&");
-            operadoresLog.add("!");
-            operadoresLog.add("||");
-
-            codigo = new BufferedReader(new FileReader(pathFile));
-        } catch (FileNotFoundException ex) {
-            System.out.println("Arquivo não encontrado");
-        }
+        palavrasReservadas.add("var");
+        palavrasReservadas.add("const");
+        palavrasReservadas.add("typedef");
+        palavrasReservadas.add("struct");
+        palavrasReservadas.add("extends");
+        palavrasReservadas.add("procedure");
+        palavrasReservadas.add("function");
+        palavrasReservadas.add("start");
+        palavrasReservadas.add("return");
+        palavrasReservadas.add("if");
+        palavrasReservadas.add("else");
+        palavrasReservadas.add("then");
+        palavrasReservadas.add("while");
+        palavrasReservadas.add("read");
+        palavrasReservadas.add("print");
+        palavrasReservadas.add("int");
+        palavrasReservadas.add("real");
+        palavrasReservadas.add("boolean");
+        palavrasReservadas.add("string");
+        palavrasReservadas.add("true");
+        palavrasReservadas.add("false");
+        palavrasReservadas.add("global");
+        palavrasReservadas.add("local");
+        delimitadores.add(";");
+        delimitadores.add(",");
+        delimitadores.add("(");
+        delimitadores.add(")");
+        delimitadores.add("[");
+        delimitadores.add("]");
+        delimitadores.add("{");
+        delimitadores.add("}");
+        operadoresRel.add("<");
+        operadoresRel.add(">");
+        operadoresRel.add("==");
+        operadoresRel.add("!=");
+        operadoresRel.add(">=");
+        operadoresRel.add("<=");
+        operadoresRel.add("=");
+        operadoresLog.add("&&");
+        operadoresLog.add("!");
+        operadoresLog.add("||");
+        ControllerArquivos arquivoController = ControllerArquivos.getInstance(pathFile);
+        LinkedList<Arquivo> arquivos = arquivoController.getArquivos();
+        Arquivo arquivo1 = arquivos.iterator().next();
+        linhas = arquivo1.getConteudo();
     }
 
     public void analise() throws IOException {
         int line = 0;
-        while (true) {
+        while (linhas.hasNext()) {
             line++;
-            linha = codigo.readLine();
-            if (linha == null) {
-                break;
-            }
-            lexema ="";
+            linha = (String) linhas.next();
+            lexema = "";
             int size = linha.length();
-            String caractere = "";
-            for (int i = 0; i < size; i++) {
-                
-                caractere = linha.substring(i, i + 1);
-               
-                //remover comentarios
-                if(caractere.equals(" ")){ //deixei espaço como delimitador por enquanto
-                    this.addToken(lexema,line);
-                    lexema ="";
-                }
-                else{
-                    lexema = lexema + caractere;
+            char caractere;
+            int estado = 0;
+            for (int i = 0; i <size; i++) {
+
+                caractere = linha.charAt(i);
+
+                switch (estado) {
+                    case 0:
+                        if (ReconhecedorCaracteres.isChar(caractere)) {
+                            lexema += caractere;
+                            estado = 1;
+
+                        } else if (ReconhecedorCaracteres.isSpace(caractere)) {
+                            estado = 0;
+                            this.addToken(lexema, line);
+                        }
+                        else {
+                            lexema="ERRO";
+                        }
+                        break;
+
+                    case 1:
+                        if (ReconhecedorCaracteres.isChar(caractere) || ReconhecedorCaracteres.isDigit(caractere) || caractere == 95) {
+                            lexema += caractere;
+                        } else if (ReconhecedorCaracteres.isSpace(caractere)) {
+                            estado = 0;
+                            this.addToken(lexema, line);
+                        } else {
+                            lexema="ERRO";
+                        }
+                        break;
+
                 }
 
             }
+            this.addToken(lexema, line);
 
         }
-
     }
 
     public void addToken(String palavra, int line) {
 
         if (palavrasReservadas.contains(palavra)) {
-            System.out.println(String.format("%04d", line)+" KEY "+palavra);
+            lexema = "";
+            System.out.println(String.format("%01d", line) + " KEY " + palavra);
             return;
         } 
+        else if(palavra=="ERRO"){
+            System.out.println(String.format("%01d ", line) + palavra);
+        }
         else {
-                System.out.println(String.format("%04d", line)+" IDE "+palavra);
-                return;
+            lexema = "";
+            System.out.println(String.format("%01d", line) + " IDE " + palavra);
+            return;
         }
 
     }
