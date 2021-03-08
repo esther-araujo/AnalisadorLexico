@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 public class ControllerArquivos {
     private static ControllerArquivos arquivoController;
     
-    private ControllerArquivos(){
+    public ControllerArquivos(){
     }
     
    

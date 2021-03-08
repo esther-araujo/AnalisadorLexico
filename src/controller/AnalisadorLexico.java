@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  *
@@ -17,7 +18,7 @@ import java.io.IOException;
  */
 public class AnalisadorLexico {
 
-    private BufferedReader codigo;
+    private Iterator linhas;
     private String linha;
     private String lexema;
     private static HashSet<String> palavrasReservadas = new HashSet();
@@ -78,7 +79,9 @@ public class AnalisadorLexico {
             operadoresLog.add("!");
             operadoresLog.add("||");
 
-            codigo = new BufferedReader(new FileReader(pathFile));
+            ControllerArquivos codigo = new ControllerArquivos();
+
+            linhas = codigo.lerArquivo(pathFile);
         } catch (FileNotFoundException ex) {
             System.out.println("Arquivo não encontrado");
         }
@@ -86,44 +89,78 @@ public class AnalisadorLexico {
 
     public void analise() throws IOException {
         int line = 0;
-        while (true) {
+        while (linhas.hasNext()) {
             line++;
-            linha = codigo.readLine();
-            if (linha == null) {
-                break;
-            }
-            lexema ="";
+            linha = (String) linhas.next();
+            lexema = "";
             int size = linha.length();
-            String caractere = "";
-            for (int i = 0; i < size; i++) {
-                
-                caractere = linha.substring(i, i + 1);
-               
-                //remover comentarios
-                if(caractere.equals(" ")){ //deixei espaço como delimitador por enquanto
-                    this.addToken(lexema,line);
-                    lexema ="";
-                }
-                else{
-                    lexema = lexema + caractere;
+            char caractere;
+            int estado = 0;
+            for (int i = 0; i <size; i++) {
+
+                caractere = linha.charAt(i);
+
+                switch (estado) {
+                    case 0:
+                        if (isChar(caractere)) {
+                            lexema += caractere;
+                            estado = 1;
+
+                        } else if (isSpace(caractere)) {
+                            estado = 0;
+                            this.addToken(lexema, line);
+                        }
+                        else {
+                            lexema="ERRO";
+                        }
+                        break;
+
+                    case 1:
+                        if (isChar(caractere) || isDigit(caractere) || caractere == 95) {
+                            lexema += caractere;
+                        } else if (isSpace(caractere)) {
+                            estado = 0;
+                            this.addToken(lexema, line);
+                        } else {
+                            lexema="ERRO";
+                        }
+                        break;
+
                 }
 
             }
+            this.addToken(lexema, line);
 
         }
-
     }
 
     public void addToken(String palavra, int line) {
 
         if (palavrasReservadas.contains(palavra)) {
-            System.out.println(String.format("%04d", line)+" KEY "+palavra);
+            lexema = "";
+            System.out.println(String.format("%01d", line) + " KEY " + palavra);
             return;
         } 
+        else if(palavra=="ERRO"){
+            System.out.println(String.format("%01d ", line) + palavra);
+        }
         else {
-                System.out.println(String.format("%04d", line)+" IDE "+palavra);
-                return;
+            lexema = "";
+            System.out.println(String.format("%01d", line) + " IDE " + palavra);
+            return;
         }
 
+    }
+
+    public boolean isChar(char c) {
+        return (c > 64 && c < 91) || (c > 96 && c < 123);
+    }
+
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private boolean isSpace(char c) {
+        return c == ' ' || c == '\t' || c == '\n' || c == '\r';
     }
 }
