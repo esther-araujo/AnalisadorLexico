@@ -118,6 +118,7 @@ public class ControllerArquivos {
     /**
      * Busca os nomes dos arquivos e seus respectivos conteúdos presentes na pasta de entrada.
      * @return Lista de instâncias da classe Arquivo gerada a partir dos arquivos de entrada.
+     * @throws util.SemEntradasException Caso não haja arquivos de entrada que possam ser lidos.
      */
     public LinkedList<Arquivo> getArquivos() throws SemEntradasException{
         LinkedList<Arquivo> ret = new LinkedList<>();

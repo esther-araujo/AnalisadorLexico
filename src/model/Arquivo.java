@@ -3,8 +3,8 @@ package model;
 import java.util.Iterator;
 
 public class Arquivo {
-    private String nome;
-    private Iterator conteudo;
+    private final String nome;
+    private final Iterator conteudo;
 
     public Arquivo(String nome, Iterator conteudo) {
         this.nome = nome;

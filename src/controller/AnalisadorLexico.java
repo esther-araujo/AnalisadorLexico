@@ -6,7 +6,6 @@
 package controller;
 
 import java.util.HashSet;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,14 +20,12 @@ import util.SemEntradasException;
  */
 public class AnalisadorLexico {
 
-    private Iterator linhas;
+    private final Iterator linhas;
     private String linha;
     private String lexema;
     private static final HashSet<String> palavrasReservadas = new HashSet();
-    private static final HashSet delimitadores = new HashSet();
-    private static final HashSet operadoresLog = new HashSet();
-    private static final HashSet operadoresRel = new HashSet();
-    private String identificador = "[a-z]|[A-Z])(([a-z]|[A-Z])|[0-9]|_";
+    private static final HashSet<String> delimitadores = new HashSet();
+    private final String identificador = "[a-z]|[A-Z])(([a-z]|[A-Z])|[0-9]|_";
 
     int estado = 0;
     int token = 0;
@@ -66,16 +63,7 @@ public class AnalisadorLexico {
         delimitadores.add("]");
         delimitadores.add("{");
         delimitadores.add("}");
-        operadoresRel.add("<");
-        operadoresRel.add(">");
-        operadoresRel.add("==");
-        operadoresRel.add("!=");
-        operadoresRel.add(">=");
-        operadoresRel.add("<=");
-        operadoresRel.add("=");
-        operadoresLog.add("&&");
-        operadoresLog.add("!");
-        operadoresLog.add("||");
+        delimitadores.add(".");
         ControllerArquivos arquivoController = ControllerArquivos.getInstance(pathFile);
         LinkedList<Arquivo> arquivos = arquivoController.getArquivos();
         Arquivo arquivo1 = arquivos.iterator().next();
@@ -90,17 +78,18 @@ public class AnalisadorLexico {
             lexema = "";
             int size = linha.length();
             char caractere = ' ';
-            int estado = 0;
+            estado = 0;
             boolean caractereExcedente = false;
-            for (int i = 0; i <=size; i++) {
-                System.out.print("i: "+i+"; ");
-                if(!caractereExcedente)
-                    if(size!=i)
-                    caractere = linha.charAt(i);
-                else
+            for (int i = 0; i <=size||caractereExcedente; i++) {
+                //System.out.print("i: "+i+"; ");
+                if(!caractereExcedente){
+                    if(i!=size)
+                        caractere = linha.charAt(i);
+                }else
                     i--;
                 switch (estado) {
                     case 0:
+                        caractereExcedente=false;
                         if (ReconhecedorCaracteres.isSpace(caractere)) {
                             estado = 0;
                             caractereExcedente = false;
@@ -108,13 +97,33 @@ public class AnalisadorLexico {
                         else if (ReconhecedorCaracteres.isChar(caractere)) {
                             lexema += caractere;
                             estado = 1;
-                        }else {
-                            lexema="ERRO";
-                            caractereExcedente = false;
+                        }else if(ReconhecedorCaracteres.isDigit(caractere)){
+                            lexema += caractere;
+                            estado = 3;
+                        }else if(delimitadores.contains(""+caractere)&&size!=i){
+                            lexema+=caractere;
+                            this.addToken("DEL", lexema, line);
+                        }else if (caractere == '|'){
+                            estado = 7;
+                            lexema+=caractere;
+                        }else if (caractere == '&'){
+                            estado = 8;
+                            lexema+=caractere;
+                        }else if(caractere == '!'){
+                            estado = 9;
+                            lexema+=caractere;
+                        }else if(caractere == '<' || caractere=='>'){
+                            estado = 10;
+                            lexema+=caractere;
+                        }else if(caractere == '='){
+                            estado = 10;
+                            lexema+=caractere;
+                        }else{
+                            lexema = "";
                         }
                         break;
                     case 1:
-                        if ((ReconhecedorCaracteres.isChar(caractere) || ReconhecedorCaracteres.isDigit(caractere) || caractere == 95)&&i<size){
+                        if ((ReconhecedorCaracteres.isChar(caractere) || ReconhecedorCaracteres.isDigit(caractere) || caractere == 95)&&i!=size){
                             lexema += caractere;
                             //System.out.println("AQUI GARAI: "+caractere+" i: "+i+" size: "+size+" Excedente: "+caractereExcedente);
                         }else{
@@ -125,16 +134,101 @@ public class AnalisadorLexico {
                     case 2:
                         estado = 0;
                         if(palavrasReservadas.contains(lexema))
-                            this.addToken("KEY",lexema, line);
+                            this.addToken("PRE",lexema, line);
                         else
                             this.addToken("IDE",lexema, line);
-                        caractereExcedente = false;
-                        System.out.println("acabou a palavra "+lexema);
+                        //caractereExcedente = false;
+                        break;
+                    case 3:
+                        if (ReconhecedorCaracteres.isChar(caractere)){
+                            lexema+=caractere;
+                            estado = 6;
+                        }else if (ReconhecedorCaracteres.isDigit(caractere)) {
+                            lexema += caractere;
+                        } else if (ReconhecedorCaracteres.isDot(caractere)) {
+                            lexema += caractere;
+                            estado = 4;
+                        }else{
+                            estado = 0;
+                            caractereExcedente=true;
+                            this.addToken("NRO",lexema, line);
+                        }
+                        break;
+                    case 4:
+                        if(ReconhecedorCaracteres.isDigit(caractere)){
+                            lexema+=caractere;
+                            estado = 5;
+                        }else{
+                            caractereExcedente=true;
+                            this.addToken("NMF",lexema, line);
+                            estado = 0;
+                        }
+                        break;
+                    case 5:
+                        if(ReconhecedorCaracteres.isDigit(caractere)){
+                            lexema+=caractere;
+                        }else{
+                            caractereExcedente=true;
+                            this.addToken("NRO",lexema, line);
+                            estado=0;
+                        }
+                        break;
+                    case 6:
+                        if(ReconhecedorCaracteres.isChar(caractere)){
+                            lexema+=caractere;
+                        }else{
+                            this.addToken("NMF",lexema, line);
+                            estado = 0;
+                        }
+                        break;
+                    case 7:
+                        if(caractere=='|'){
+                            lexema+=caractere;
+                            this.addToken("LOG", lexema, line);
+                            estado=0;
+                        }else{
+                            lexema+=caractere;
+                            this.addToken("OpMF", lexema, line);
+                            estado=0;
+                        }
+                        break;
+                    case 8:
+                        if(caractere=='&'){
+                            lexema+=caractere;
+                            this.addToken("LOG", lexema, line);
+                            estado=0;
+                        }else{
+                            lexema+=caractere;
+                            this.addToken("OpMF", lexema, line);
+                            estado=0;
+                        }
+                        break;
+                    case 9:
+                        if(caractere=='='){
+                            lexema+=caractere;
+                            this.addToken("REL", lexema, line);
+                            estado=0;
+                        }else{
+                            caractereExcedente=true;
+                            this.addToken("LOG", lexema, line);
+                            estado=0;
+                        }
+                        break;
+                    case 10:
+                        if(caractere=='='){
+                            lexema+=caractere;
+                            this.addToken("REL", lexema, line);
+                            estado=0;
+                        }else{
+                            caractereExcedente=true;
+                            this.addToken("REL", lexema, line);
+                            estado=0;
+                        }
                         break;
                     default:
+                        lexema = "";
                         caractereExcedente = false;
                 }
-
             }
         }
     }
@@ -143,6 +237,5 @@ public class AnalisadorLexico {
             Token t = new Token(id, lexema, line);
             System.out.println(t);
             this.lexema="";
-            return;
     }
 }

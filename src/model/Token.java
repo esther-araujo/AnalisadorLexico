@@ -25,8 +25,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return linha+" "+id+" "+lexema;
+        return String.format("%04d", linha)+" "+id+" "+lexema;
     }
-    
-    
 }
