@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import model.Arquivo;
+import model.Token;
 import util.ReconhecedorCaracteres;
+import util.SemEntradasException;
 
 /**
  *
@@ -32,7 +34,7 @@ public class AnalisadorLexico {
     int token = 0;
     boolean fimCodigo = false;
 
-    public AnalisadorLexico(String pathFile) {
+    public AnalisadorLexico(String pathFile) throws SemEntradasException {
         palavrasReservadas.add("var");
         palavrasReservadas.add("const");
         palavrasReservadas.add("typedef");
@@ -87,61 +89,60 @@ public class AnalisadorLexico {
             linha = (String) linhas.next();
             lexema = "";
             int size = linha.length();
-            char caractere;
+            char caractere = ' ';
             int estado = 0;
-            for (int i = 0; i <size; i++) {
-
-                caractere = linha.charAt(i);
-
+            boolean caractereExcedente = false;
+            for (int i = 0; i <=size; i++) {
+                System.out.print("i: "+i+"; ");
+                if(!caractereExcedente)
+                    if(size!=i)
+                    caractere = linha.charAt(i);
+                else
+                    i--;
                 switch (estado) {
                     case 0:
-                        if (ReconhecedorCaracteres.isChar(caractere)) {
+                        if (ReconhecedorCaracteres.isSpace(caractere)) {
+                            estado = 0;
+                            caractereExcedente = false;
+                        }
+                        else if (ReconhecedorCaracteres.isChar(caractere)) {
                             lexema += caractere;
                             estado = 1;
-
-                        } else if (ReconhecedorCaracteres.isSpace(caractere)) {
-                            estado = 0;
-                            this.addToken(lexema, line);
-                        }
-                        else {
+                        }else {
                             lexema="ERRO";
+                            caractereExcedente = false;
                         }
                         break;
-
                     case 1:
-                        if (ReconhecedorCaracteres.isChar(caractere) || ReconhecedorCaracteres.isDigit(caractere) || caractere == 95) {
+                        if ((ReconhecedorCaracteres.isChar(caractere) || ReconhecedorCaracteres.isDigit(caractere) || caractere == 95)&&i<size){
                             lexema += caractere;
-                        } else if (ReconhecedorCaracteres.isSpace(caractere)) {
-                            estado = 0;
-                            this.addToken(lexema, line);
-                        } else {
-                            lexema="ERRO";
+                            //System.out.println("AQUI GARAI: "+caractere+" i: "+i+" size: "+size+" Excedente: "+caractereExcedente);
+                        }else{
+                            estado = 2;
+                            caractereExcedente = true;
                         }
                         break;
-
+                    case 2:
+                        estado = 0;
+                        if(palavrasReservadas.contains(lexema))
+                            this.addToken("KEY",lexema, line);
+                        else
+                            this.addToken("IDE",lexema, line);
+                        caractereExcedente = false;
+                        System.out.println("acabou a palavra "+lexema);
+                        break;
+                    default:
+                        caractereExcedente = false;
                 }
 
             }
-            this.addToken(lexema, line);
-
         }
     }
 
-    public void addToken(String palavra, int line) {
-
-        if (palavrasReservadas.contains(palavra)) {
-            lexema = "";
-            System.out.println(String.format("%01d", line) + " KEY " + palavra);
+    public void addToken(String id, String lexema, int line) {
+            Token t = new Token(id, lexema, line);
+            System.out.println(t);
+            this.lexema="";
             return;
-        } 
-        else if(palavra=="ERRO"){
-            System.out.println(String.format("%01d ", line) + palavra);
-        }
-        else {
-            lexema = "";
-            System.out.println(String.format("%01d", line) + " IDE " + palavra);
-            return;
-        }
-
     }
 }

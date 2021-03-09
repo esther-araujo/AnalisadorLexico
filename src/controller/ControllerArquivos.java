@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import model.Arquivo;
 import util.ReconhecedorCaracteres;
+import util.SemEntradasException;
 
 public class ControllerArquivos {
     private static ControllerArquivos arquivoController;
@@ -86,9 +87,8 @@ public class ControllerArquivos {
                                                 i++;
                                                 if (nome.charAt(i)=='x') {
                                                     i++;
-                                                    if (nome.charAt(i)=='t') {
+                                                    if (nome.charAt(i)=='t') 
                                                         ret.add(nome);
-                                                    }
                                                 }
                                             }
                                         }
@@ -119,7 +119,7 @@ public class ControllerArquivos {
      * Busca os nomes dos arquivos e seus respectivos conteúdos presentes na pasta de entrada.
      * @return Lista de instâncias da classe Arquivo gerada a partir dos arquivos de entrada.
      */
-    public LinkedList<Arquivo> getArquivos(){
+    public LinkedList<Arquivo> getArquivos() throws SemEntradasException{
         LinkedList<Arquivo> ret = new LinkedList<>();
         arquivosDeEntrada.forEach((String nome)->{
             try{
@@ -128,6 +128,8 @@ public class ControllerArquivos {
                 System.out.println("O arquivo "+nome+" não pôde ser lido.");
             }
         });
+        if(ret.isEmpty())
+            throw new SemEntradasException();
         return ret;
     }
     
