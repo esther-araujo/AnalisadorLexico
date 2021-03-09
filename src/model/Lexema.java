@@ -5,7 +5,7 @@ public class Lexema {
     private final int linha;
     private final String id;
 
-    public Lexema(String lexema, int linha, String id) {
+    public Lexema(int linha, String id, String lexema) {
         this.lexema = lexema;
         this.linha = linha;
         this.id = id;
@@ -22,4 +22,6 @@ public class Lexema {
     public String getId() {
         return id;
     }
+    
+    
 }

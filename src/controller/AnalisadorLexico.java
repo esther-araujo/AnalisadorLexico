@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import model.Arquivo;
+import model.Lexema;
 import util.ReconhecedorCaracteres;
 
 /**
@@ -22,6 +23,7 @@ public class AnalisadorLexico {
     private Iterator linhas;
     private String linha;
     private String lexema;
+    private String id;
     private static final HashSet<String> palavrasReservadas = new HashSet();
     private static final HashSet delimitadores = new HashSet();
     private static final HashSet operadoresLog = new HashSet();
@@ -82,14 +84,17 @@ public class AnalisadorLexico {
 
     public void analise() throws IOException {
         int line = 0;
+
         while (linhas.hasNext()) {
             line++;
             linha = (String) linhas.next();
             lexema = "";
+            id = "";
             int size = linha.length();
             char caractere;
             int estado = 0;
-            for (int i = 0; i <size; i++) {
+            int estadoAnterior = 0;
+            for (int i = 0; i < size; i++) {
 
                 caractere = linha.charAt(i);
 
@@ -99,30 +104,89 @@ public class AnalisadorLexico {
                             lexema += caractere;
                             estado = 1;
 
+                        } else if (ReconhecedorCaracteres.isDigit(caractere)) {
+                            lexema += caractere;
+                            id = "NRO";
+                            estado = 2;
+                            estadoAnterior = 2;
                         } else if (ReconhecedorCaracteres.isSpace(caractere)) {
-                            estado = 0;
-                            this.addToken(lexema, line);
-                        }
-                        else {
-                            lexema="ERRO";
+                            estado = 0;   
+                        } else {
+                            lexema+=caractere;
+                            id = "ERRO";
+                            Lexema token = new Lexema(line,id,lexema ); 
+                            this.showToken(token);
                         }
                         break;
 
                     case 1:
-                        if (ReconhecedorCaracteres.isChar(caractere) || ReconhecedorCaracteres.isDigit(caractere) || caractere == 95) {
+                        if (ReconhecedorCaracteres.isChar(caractere) || ReconhecedorCaracteres.isDigit(caractere) || ReconhecedorCaracteres.isUnderline(caractere)) {
                             lexema += caractere;
+                            estadoAnterior=1;
                         } else if (ReconhecedorCaracteres.isSpace(caractere)) {
                             estado = 0;
                             this.addToken(lexema, line);
                         } else {
-                            lexema="ERRO";
+                            lexema+=caractere;
+                            id = "ERRO";
+                            Lexema token = new Lexema(line,id,lexema ); 
+                            this.showToken(token);
+                            estado=0;
+                            lexema="";
+                        }
+                        break;
+                    case 2:
+                        if (ReconhecedorCaracteres.isDigit(caractere)) {
+                            lexema += caractere;
+                            id = "NRO";
+                            estado = 2;
+                            estadoAnterior = 2;
+                        } else if (ReconhecedorCaracteres.isSpace(caractere)) {
+                            estado = 0;
+                            id = "NRO";
+                            Lexema token = new Lexema(line,id,lexema );
+                            this.showToken(token);
+                            lexema = "";
+                        } else if (ReconhecedorCaracteres.isDot(caractere)) {
+                            lexema += caractere;
+                            estado = 3;
+                        }
+                        break;
+
+                    case 3:
+                        if (ReconhecedorCaracteres.isDigit(caractere)) {
+                            lexema += caractere;
+                            estado = 3;
+                        } else if (ReconhecedorCaracteres.isSpace(caractere)) {
+                            estado = 0;
+                            id = "NRO";
+                            Lexema token = new Lexema(line,id ,lexema );
+                            this.showToken(token);
+                            estadoAnterior = 3;
+                            lexema = "";
+                        } else if (ReconhecedorCaracteres.isDot(caractere)) {
+                            lexema += caractere;
+                            id = "NMF";
+                            Lexema token = new Lexema(line,id ,lexema );
+                            this.showToken(token);
+                            lexema="";
+                            estadoAnterior = 3;
+                            estado = 0;
                         }
                         break;
 
                 }
 
             }
-            this.addToken(lexema, line);
+            if(estadoAnterior==1 && id!="ERRO"){
+                this.addToken(lexema, line);
+            }
+            if((estadoAnterior==2 || estadoAnterior==3) && id!="ERRO"){
+                Lexema token = new Lexema(line,id ,lexema );
+            }
+            
+            
+            
 
         }
     }
@@ -131,17 +195,18 @@ public class AnalisadorLexico {
 
         if (palavrasReservadas.contains(palavra)) {
             lexema = "";
-            System.out.println(String.format("%01d", line) + " KEY " + palavra);
+            System.out.println(String.format("%01d", line) + " PRE " + palavra);
             return;
-        } 
-        else if(palavra=="ERRO"){
-            System.out.println(String.format("%01d ", line) + palavra);
-        }
-        else {
+        } else {
             lexema = "";
             System.out.println(String.format("%01d", line) + " IDE " + palavra);
             return;
         }
 
+    }
+
+    //para testar
+    public void showToken(Lexema token) {
+        System.out.println(token.getLinha() + " " + token.getLexema() + " " + token.getId());
     }
 }
