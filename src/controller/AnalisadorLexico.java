@@ -72,7 +72,7 @@ public class AnalisadorLexico {
             line++;
             linha = (String) linhas.next();
             if(inComment){
-               estado = 13;
+               estado = 12;
             }
             else{
                 estado = 0;
@@ -124,7 +124,6 @@ public class AnalisadorLexico {
                             lexema+=caractere;
                         }else if(caractere == '/'){
                             estado = 11;
-                            lexema+=caractere;
                         }else{
                             lexema = "";
                         }
@@ -234,39 +233,23 @@ public class AnalisadorLexico {
                         break;
                     case 11:
                         if(caractere=='/'){
-                            estado = 12;
-                            lexema+=caractere;
-                            this.addToken("COM", lexema, line);
-                            lexema="";
+                            i=size+1;//saindo do laço que percorre a linha
                         }else if(caractere=='*'){
-                            lexema+=caractere;
-                            estado=13;
+                            estado=12;
                             inComment=true;
                         }
                         break;
                     case 12:
-                        estado = 12;
+                        if(caractere=='*'){
+                            estado = 13;
+                        }
+                        else{
+                            estado=12;
+                        }
                         break;
                     case 13:
-                        if(caractere=='*'){
-                            estado = 14;
-                            lexema+=caractere;
-                            inComment=false;
-                        }
-                        else{
-                            estado=13;
-                        }
-                        break;
-                    case 14:
                         if(caractere=='/'){
-                            lexema+=caractere;
                             estado=0;
-                            inComment=false;
-                            this.addToken("COM", lexema, line);
-                        }
-                        else{
-                            lexema+=caractere;
-                            this.addToken("CoMF", lexema, line);
                             inComment=false;
                         }
                         break;
@@ -278,7 +261,7 @@ public class AnalisadorLexico {
         }
         //se quando a leitura terminar o comentario ainda estiver aberto
         if(inComment){
-            this.addToken("CoNT", lexema, line);//comentario nao terminado
+            this.addToken("CoMF", lexema, line);//comentario nao terminado/ mal formado
         }
 
         return analiseRet;

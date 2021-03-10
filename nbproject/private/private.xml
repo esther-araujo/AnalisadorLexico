@@ -3,12 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/work/MI%20-%20Compiladores/PBL1%20-%20Git/AnalisadorLexico/src/controller/ControllerArquivos.java</file>
-            <file>file:/D:/work/MI%20-%20Compiladores/PBL1%20-%20Git/AnalisadorLexico/src/view/Main.java</file>
-            <file>file:/D:/work/MI%20-%20Compiladores/PBL1%20-%20Git/AnalisadorLexico/src/controller/AnalisadorLexico.java</file>
-            <file>file:/D:/work/MI%20-%20Compiladores/PBL1%20-%20Git/AnalisadorLexico/src/controller/ControllerFluxoAnalise.java</file>
-            <file>file:/D:/work/MI%20-%20Compiladores/PBL1%20-%20Git/AnalisadorLexico/src/util/CaminhoInvalidoException.java</file>
-            <file>file:/D:/work/MI%20-%20Compiladores/PBL1%20-%20Git/AnalisadorLexico/src/util/ReconhecedorCaracteres.java</file>
+            <file>file:/C:/Users/esthe/UEFS/AnalisadorLexico/src/model/Arquivo.java</file>
+            <file>file:/C:/Users/esthe/UEFS/AnalisadorLexico/src/controller/ControllerArquivos.java</file>
+            <file>file:/C:/Users/esthe/UEFS/AnalisadorLexico/src/view/Main.java</file>
+            <file>file:/C:/Users/esthe/UEFS/AnalisadorLexico/src/controller/ControllerFluxoAnalise.java</file>
+            <file>file:/C:/Users/esthe/UEFS/AnalisadorLexico/src/controller/AnalisadorLexico.java</file>
         </group>
     </open-files>
 </project-private>
