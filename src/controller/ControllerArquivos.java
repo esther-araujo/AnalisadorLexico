@@ -116,14 +116,14 @@ public class ControllerArquivos {
     private Iterator lerArquivo(String nome) throws FileNotFoundException, IOException{
         String result = new String();
         BufferedReader buffReader = new BufferedReader(new FileReader(nome));
-        LinkedList<String> linhas = new LinkedList<>();
-        String linha = buffReader.readLine();
-        do{
-            linhas.add(linha);
-            linha = buffReader.readLine();
-        }while(linha!=null);
-        buffReader.close();
-        return linhas.iterator();
+//        LinkedList<String> linhas = new LinkedList<>();
+//        String linha = buffReader.readLine();
+//        do{
+//            linhas.add(linha);
+//            linha = buffReader.readLine();
+//        }while(linha!=null);
+//        buffReader.close();
+        return buffReader.lines().iterator();//linhas.iterator();
     }
     
     /**
