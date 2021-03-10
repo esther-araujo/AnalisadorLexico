@@ -68,6 +68,7 @@ public class AnalisadorLexico {
     public String analise(Iterator linhas) {
         this.linhas = linhas;
         int line = 0;
+        int lineComment=0;
         while (linhas.hasNext()) {
             line++;
             linha = (String) linhas.next();
@@ -237,6 +238,7 @@ public class AnalisadorLexico {
                         }else if(caractere=='*'){
                             estado=12;
                             inComment=true;
+                            lineComment = line;
                         }
                         break;
                     case 12:
@@ -261,7 +263,7 @@ public class AnalisadorLexico {
         }
         //se quando a leitura terminar o comentario ainda estiver aberto
         if(inComment){
-            this.addToken("CoMF", lexema, line);//comentario nao terminado/ mal formado
+            this.addToken("CoMF", lexema, lineComment);//comentario nao terminado/ mal formado
         }
 
         return analiseRet;
