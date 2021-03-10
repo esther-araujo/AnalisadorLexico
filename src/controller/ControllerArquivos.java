@@ -9,6 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Arquivo;
 import util.ReconhecedorCaracteres;
 import util.SemEntradasException;
@@ -18,7 +20,7 @@ public class ControllerArquivos {
     private final String path;
     private LinkedList<String> arquivosDeEntrada;
     
-    private ControllerArquivos(String path){
+    private ControllerArquivos(String path) throws SemEntradasException{
         this.path = path;
         arquivosEntrada();
     }
@@ -28,7 +30,7 @@ public class ControllerArquivos {
      * @param path Caminho para a pasta com os arquivos de entrada. Caso seja passado o nome de um arquivo, apenas ele será tratado.
      * @return instância única do ControllerArquivos.
      */
-    public static synchronized ControllerArquivos getInstance(String path) {
+    public static synchronized ControllerArquivos getInstance(String path) throws SemEntradasException {
         if(arquivoController == null){
             arquivoController = new ControllerArquivos(path);
         }
@@ -39,7 +41,7 @@ public class ControllerArquivos {
      * Encontra todos os arquivos na pasta apontada como origem de entradas
      * @return Lista com os nomes dos arquivos
      */
-    private LinkedList<String> arquivosPastaEntrada(){
+    private LinkedList<String> arquivosPastaEntrada() throws SemEntradasException{
         LinkedList<String> ret = new LinkedList<>();
         File pasta = new File(path);
         if (pasta.isFile()){
@@ -47,6 +49,9 @@ public class ControllerArquivos {
             return ret;
         }
         File[] listaDeArquivos = pasta.listFiles();
+        if(listaDeArquivos==null){
+            throw new SemEntradasException();
+        }
         for(File file : listaDeArquivos){
             ret.add(file.getName());
         }
@@ -58,10 +63,9 @@ public class ControllerArquivos {
      * Observe que não é permitido a entrada com caixa alta.
      * @return Lista com os nomes dos arquivos com o nome no formato exigido
      */
-    private void arquivosEntrada(){
+    private void arquivosEntrada() throws SemEntradasException{
         LinkedList<String> ret = new LinkedList<>();
         LinkedList<String> arquivos = arquivosPastaEntrada();
-        
         arquivos.forEach((nome) -> {
             int i = 0;
             if (nome.length()>11&&nome.charAt(i)=='e'){
@@ -88,7 +92,7 @@ public class ControllerArquivos {
                                                 if (nome.charAt(i)=='x') {
                                                     i++;
                                                     if (nome.charAt(i)=='t') 
-                                                        ret.add(nome);
+                                                        ret.add(path+nome);
                                                 }
                                             }
                                         }
@@ -109,10 +113,17 @@ public class ControllerArquivos {
      * @return Iterador para o conjunto de linhas do arquivo.
      * @throws FileNotFoundException Caso seja impossibilitada a leitura do arquivo.
      */
-    private Iterator lerArquivo(String nome) throws FileNotFoundException{
+    private Iterator lerArquivo(String nome) throws FileNotFoundException, IOException{
         String result = new String();
         BufferedReader buffReader = new BufferedReader(new FileReader(nome));
-        return buffReader.lines().iterator();
+//        LinkedList<String> linhas = new LinkedList<>();
+//        String linha = buffReader.readLine();
+//        do{
+//            linhas.add(linha);
+//            linha = buffReader.readLine();
+//        }while(linha!=null);
+//        buffReader.close();
+        return buffReader.lines().iterator();//linhas.iterator();
     }
     
     /**
@@ -127,11 +138,23 @@ public class ControllerArquivos {
                 ret.add(new Arquivo(nome, lerArquivo(nome)));
             }catch(FileNotFoundException E){
                 System.out.println("O arquivo "+nome+" não pôde ser lido.");
+            } catch (IOException ex) {
+                System.out.println("O arquivo "+nome+" não foi encontrado.");;
             }
         });
         if(ret.isEmpty())
             throw new SemEntradasException();
         return ret;
+    }
+    
+    /**
+     * Verifica se um dado caminho é uma pasta ou não.
+     * @param path caminho recebido.
+     * @return true caso seja pasta, false caso não seja.
+     */
+    public boolean isFolder(String path){
+        File folder = new File(path);
+        return folder.isDirectory();
     }
     
     /**
@@ -141,7 +164,7 @@ public class ControllerArquivos {
      * @return long contendo informações do momento de modificação.
      * @throws IOException caso não consiga realizar a escrita.
      */
-    private long escreverArquivo(String nome, String data) throws IOException{
+    public long escreverArquivo(String nome, String data) throws IOException{
         if(!inicializarArquivo(nome)){
             System.out.println("Falha ao inicializar arquivo "+nome);
             throw new IOException();

@@ -1,20 +1,20 @@
 package view;
-import controller.AnalisadorLexico;
-import java.io.IOException;
+import controller.ControllerFluxoAnalise;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import util.CaminhoInvalidoException;
 import util.SemEntradasException;
 
 public class Main {
 
     public static void main(String[] args) {
-        AnalisadorLexico analisador;
         try {
-            analisador = new AnalisadorLexico("entrada1.txt");
-            analisador.analise();
+            ControllerFluxoAnalise controllerFluxoAnalise= new ControllerFluxoAnalise("input/", "output/");
+            controllerFluxoAnalise.comecarAnalise();
         } catch (SemEntradasException ex) {
             System.out.println("Não há arquivos de entrada.");
-        }
-        catch (IOException ex) {
-            System.out.println("Falha ao ler o arquivo.");
+        } catch (CaminhoInvalidoException ex) {
+            System.out.println("O caminho informado para a pasta de entrada e/ou saída é inválido");
         }
     }
     

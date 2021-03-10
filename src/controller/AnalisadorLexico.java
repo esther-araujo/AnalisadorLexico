@@ -6,10 +6,7 @@
 package controller;
 
 import java.util.HashSet;
-import java.io.IOException;
 import java.util.Iterator;
-import java.util.LinkedList;
-import model.Arquivo;
 import model.Token;
 import util.ReconhecedorCaracteres;
 import util.SemEntradasException;
@@ -20,7 +17,7 @@ import util.SemEntradasException;
  */
 public class AnalisadorLexico {
 
-    private final Iterator linhas;
+    private Iterator linhas;
     private String linha;
     private String lexema;
     private static final HashSet<String> palavrasReservadas = new HashSet();
@@ -30,8 +27,9 @@ public class AnalisadorLexico {
     int estado = 0;
     int token = 0;
     boolean fimCodigo = false;
+    private String analiseRet = "";
 
-    public AnalisadorLexico(String pathFile) throws SemEntradasException {
+    public AnalisadorLexico() throws SemEntradasException {
         palavrasReservadas.add("var");
         palavrasReservadas.add("const");
         palavrasReservadas.add("typedef");
@@ -65,13 +63,10 @@ public class AnalisadorLexico {
         delimitadores.add("}");
         delimitadores.add(".");
         
-        ControllerArquivos arquivoController = ControllerArquivos.getInstance(pathFile);
-        LinkedList<Arquivo> arquivos = arquivoController.getArquivos();
-        Arquivo arquivo1 = arquivos.iterator().next();
-        linhas = arquivo1.getConteudo();
     }
 
-    public void analise() throws IOException {
+    public String analise(Iterator linhas) {
+        this.linhas = linhas;
         int line = 0;
         while (linhas.hasNext()) {
             line++;
@@ -285,11 +280,14 @@ public class AnalisadorLexico {
         if(inComment){
             this.addToken("CoNT", lexema, line);//comentario nao terminado
         }
+
+        return analiseRet;
     }
 
     public void addToken(String id, String lexema, int line) {
             Token t = new Token(id, lexema, line);
             System.out.println(t);
+            analiseRet+=t+"\n";
             this.lexema="";
     }
 }
