@@ -22,7 +22,4 @@ public class ReconhecedorCaracteres {
         return c == 46;
     }
 
-    private boolean isOperator(char c) {
-        return c == '>' || c == '<' || c == '=' || c == '!' || c == '+' || c == '-' || c == '*' || c == '/';
-    }
 }

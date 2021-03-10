@@ -25,7 +25,7 @@ public class AnalisadorLexico {
     private String lexema;
     private static final HashSet<String> palavrasReservadas = new HashSet();
     private static final HashSet<String> delimitadores = new HashSet();
-    private final String identificador = "[a-z]|[A-Z])(([a-z]|[A-Z])|[0-9]|_";
+    private boolean inComment = false;
 
     int estado = 0;
     int token = 0;
@@ -64,6 +64,7 @@ public class AnalisadorLexico {
         delimitadores.add("{");
         delimitadores.add("}");
         delimitadores.add(".");
+        
         ControllerArquivos arquivoController = ControllerArquivos.getInstance(pathFile);
         LinkedList<Arquivo> arquivos = arquivoController.getArquivos();
         Arquivo arquivo1 = arquivos.iterator().next();
@@ -75,10 +76,17 @@ public class AnalisadorLexico {
         while (linhas.hasNext()) {
             line++;
             linha = (String) linhas.next();
-            lexema = "";
+            if(inComment){
+               estado = 13;
+            }
+            else{
+                estado = 0;
+                lexema = "";
+            }
+            
             int size = linha.length();
             char caractere = ' ';
-            estado = 0;
+            
             boolean caractereExcedente = false;
             for (int i = 0; i <=size||caractereExcedente; i++) {
                 //System.out.print("i: "+i+"; ");
@@ -87,6 +95,7 @@ public class AnalisadorLexico {
                         caractere = linha.charAt(i);
                 }else
                     i--;
+                
                 switch (estado) {
                     case 0:
                         caractereExcedente=false;
@@ -117,6 +126,9 @@ public class AnalisadorLexico {
                             lexema+=caractere;
                         }else if(caractere == '='){
                             estado = 10;
+                            lexema+=caractere;
+                        }else if(caractere == '/'){
+                            estado = 11;
                             lexema+=caractere;
                         }else{
                             lexema = "";
@@ -225,11 +237,53 @@ public class AnalisadorLexico {
                             estado=0;
                         }
                         break;
+                    case 11:
+                        if(caractere=='/'){
+                            estado = 12;
+                            lexema+=caractere;
+                            this.addToken("COM", lexema, line);
+                            lexema="";
+                        }else if(caractere=='*'){
+                            lexema+=caractere;
+                            estado=13;
+                            inComment=true;
+                        }
+                        break;
+                    case 12:
+                        estado = 12;
+                        break;
+                    case 13:
+                        if(caractere=='*'){
+                            estado = 14;
+                            lexema+=caractere;
+                            inComment=false;
+                        }
+                        else{
+                            estado=13;
+                        }
+                        break;
+                    case 14:
+                        if(caractere=='/'){
+                            lexema+=caractere;
+                            estado=0;
+                            inComment=false;
+                            this.addToken("COM", lexema, line);
+                        }
+                        else{
+                            lexema+=caractere;
+                            this.addToken("CoMF", lexema, line);
+                            inComment=false;
+                        }
+                        break;
                     default:
                         lexema = "";
                         caractereExcedente = false;
                 }
             }
+        }
+        //se quando a leitura terminar o comentario ainda estiver aberto
+        if(inComment){
+            this.addToken("CoNT", lexema, line);//comentario nao terminado
         }
     }
 
