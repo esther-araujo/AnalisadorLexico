@@ -24,7 +24,8 @@ public class ControllerFluxoAnalise {
     
     public void comecarAnalise(){
         arquivos.forEach((Arquivo arq)->{
-            String ret=analisadorLexico.analise(arq.getConteudo());
+            String ret = "";
+            ret=analisadorLexico.analise(arq.getConteudo());
             String outputFile = "saida";
             String inputFile = arq.getNome();
             for(int i = 13;inputFile.charAt(i) !='.';i++){
@@ -35,8 +36,6 @@ public class ControllerFluxoAnalise {
             } catch (IOException ex) {
                 System.out.println("Não foi possível criar o arquivo "+outputPath+outputFile+".txt");
             }
-            System.out.print(ret);
-            
         });
     }
     

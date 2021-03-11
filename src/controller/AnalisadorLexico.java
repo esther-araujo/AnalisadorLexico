@@ -66,6 +66,7 @@ public class AnalisadorLexico {
     }
 
     public String analise(Iterator linhas) {
+        analiseRet="";
         this.linhas = linhas;
         int line = 0;
         int lineComment = 0;
@@ -149,7 +150,9 @@ public class AnalisadorLexico {
                         //caractereExcedente = false;
                         break;
                     case 3:
-                        if (ReconhecedorCaracteres.isChar(caractere)) {
+                        if(size==i){
+                            this.addToken("NRO", lexema, line);
+                        }else if (ReconhecedorCaracteres.isChar(caractere)) {
                             lexema += caractere;
                             estado = 6;
                         } else if (ReconhecedorCaracteres.isDigit(caractere)) {
@@ -188,6 +191,7 @@ public class AnalisadorLexico {
                         } else {
                             this.addToken("NMF", lexema, line);
                             estado = 0;
+                            caractereExcedente=true;
                         }
                         break;
                     case 7:
@@ -272,7 +276,6 @@ public class AnalisadorLexico {
 
     public void addToken(String id, String lexema, int line) {
         Token t = new Token(id, lexema, line);
-        System.out.println(t);
         analiseRet += t + "\n";
         this.lexema = "";
     }
