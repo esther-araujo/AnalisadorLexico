@@ -2,12 +2,13 @@ package util;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
-
+import org.junit.Before;
 public class ReconhecedorCaracteresTest {
     
-    public ReconhecedorCaracteresTest() {
+    @Before
+    public void setUp() {
+        
     }
-    
     @Test
     public void testIsSpace() {
         assertEquals(false, ReconhecedorCaracteres.isSpace('j'));
