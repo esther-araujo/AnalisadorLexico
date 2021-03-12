@@ -85,56 +85,96 @@ public class AnalisadorLexico {
             char caractere = ' ';
 
             boolean caractereExcedente = false;
-            for (int i = 0; i <= size || caractereExcedente; i++) {
-                //System.out.print("i: "+i+"; ");
-                if (!caractereExcedente) {
-                    if (i != size) {
-                        caractere = linha.charAt(i);
-                    }
-                } else {
+            for (int i = 0; i < size || caractereExcedente; i++) {
+                if (!caractereExcedente)
+                    caractere = linha.charAt(i);
+                else
                     i--;
-                }
-
                 switch (estado) {
                     case 0:
                         caractereExcedente = false;
                         if (ReconhecedorCaracteres.isSpace(caractere)) {
                             estado = 0;
-                            caractereExcedente = false;
                         } else if (ReconhecedorCaracteres.isChar(caractere)) {
                             lexema += caractere;
-                            estado = 1;
+                            if(i==size-1){
+                                this.addToken("IDE", lexema, line);
+                            }else
+                                estado = 1;
                         } else if (ReconhecedorCaracteres.isDigit(caractere)) {
                             lexema += caractere;
-                            estado = 3;
-                        } else if (delimitadores.contains("" + caractere) && size != i) {
+                            
+                            if(i==size-1){
+                                this.addToken("NRO", lexema, line);
+                            }else
+                                estado = 3;
+                        } else if (delimitadores.contains("" + caractere)) {
                             lexema += caractere;
                             this.addToken("DEL", lexema, line);
                         } else if (caractere == '|') {
-                            estado = 7;
                             lexema += caractere;
+                            if(i==size-1){
+                                this.addToken("OpMF", lexema, line);
+                            }else
+                                estado = 7;
                         } else if (caractere == '&') {
-                            estado = 8;
                             lexema += caractere;
+                            if(i==size-1){
+                                this.addToken("OpMF", lexema, line);
+                            }else
+                                estado = 8;
                         } else if (caractere == '!') {
-                            estado = 9;
                             lexema += caractere;
+                            if(i==size-1){
+                                this.addToken("LOG", lexema, line);
+                            }else
+                                estado = 9;
                         } else if (caractere == '<' || caractere == '>') {
-                            estado = 10;
                             lexema += caractere;
+                            if(i==size-1){
+                                this.addToken("REL", lexema, line);
+                            }else
+                                estado = 10;
                         } else if (caractere == '=') {
-                            estado = 10;
                             lexema += caractere;
+                            if(i==size-1){
+                                this.addToken("REL", lexema, line);
+                            }else
+                                estado = 10;
                         } else if (caractere == '/') {
-                            estado = 11;
+                            if(i==size-1){
+                                this.addToken("ART", lexema, line);
+                            }else
+                                estado = 11;
+                        }else if(caractere == '*'){
+                            this.addToken("ART", lexema, line);
+                        } else if (caractere == '+') {
+                            lexema += caractere;
+                            if(i==size-1){
+                                this.addToken("ART", lexema, line);
+                            }else
+                                estado = 14;
+                        } else if (caractere == '-') {
+                            lexema += caractere;
+                            if(i==size-1){
+                                this.addToken("ART", lexema, line);
+                            }else
+                                estado = 15;
                         } else {
-                            lexema = "";
+                            this.addToken("SIB",""+caractere, line);
                         }
                         break;
                     case 1:
-                        if ((ReconhecedorCaracteres.isChar(caractere) || ReconhecedorCaracteres.isDigit(caractere) || caractere == 95) && i != size) {
+                        if (ReconhecedorCaracteres.isChar(caractere) || ReconhecedorCaracteres.isDigit(caractere) || caractere == 95) {
                             lexema += caractere;
-                            //System.out.println("AQUI GARAI: "+caractere+" i: "+i+" size: "+size+" Excedente: "+caractereExcedente);
+                            if(i==size-1){
+                                if (palavrasReservadas.contains(lexema)) {
+                                    this.addToken("PRE", lexema, line);
+                                } else {
+                                    this.addToken("IDE", lexema, line);
+                                }
+                                estado = 0;
+                            }
                         } else {
                             estado = 2;
                             caractereExcedente = true;
@@ -147,19 +187,24 @@ public class AnalisadorLexico {
                         } else {
                             this.addToken("IDE", lexema, line);
                         }
-                        //caractereExcedente = false;
                         break;
                     case 3:
-                        if(size==i){
-                            this.addToken("NRO", lexema, line);
-                        }else if (ReconhecedorCaracteres.isChar(caractere)) {
+                        if (ReconhecedorCaracteres.isChar(caractere)) {
                             lexema += caractere;
-                            estado = 6;
+                            if(size-1==i)
+                                this.addToken("NMF", lexema, line);
+                            else
+                                estado = 6;
                         } else if (ReconhecedorCaracteres.isDigit(caractere)) {
                             lexema += caractere;
+                            if(size-1==i)
+                                this.addToken("NRO", lexema, line);
                         } else if (ReconhecedorCaracteres.isDot(caractere)) {
                             lexema += caractere;
-                            estado = 4;
+                            if(size-1==i)
+                                this.addToken("NMF", lexema, line);
+                            else
+                                estado = 4;
                         } else {
                             estado = 0;
                             caractereExcedente = true;
@@ -167,19 +212,35 @@ public class AnalisadorLexico {
                         }
                         break;
                     case 4:
+                        lexema+=caractere;
                         if (ReconhecedorCaracteres.isDigit(caractere)) {
-                            lexema += caractere;
-                            estado = 5;
-                        } else {
+                            if(size-1==i)
+                                this.addToken("NRO", lexema, line);
+                            else
+                                estado = 5;
+                        }else if(ReconhecedorCaracteres.isChar(caractere)){
+                            if(size-1==i)
+                                this.addToken("NMF", lexema, line);
+                            else
+                                estado = 6;
+                        }else{
+                            this.addToken("NRO", lexema, line);
                             caractereExcedente = true;
-                            this.addToken("NMF", lexema, line);
                             estado = 0;
                         }
                         break;
                     case 5:
                         if (ReconhecedorCaracteres.isDigit(caractere)) {
                             lexema += caractere;
-                        } else {
+                            if(size-1==i)
+                                this.addToken("NRO", lexema, line);
+                        } else if(ReconhecedorCaracteres.isChar(caractere)){
+                            lexema += caractere;
+                            if(size-1==i)
+                                this.addToken("NMF", lexema, line);
+                            else
+                                estado = 6;
+                        }else{
                             caractereExcedente = true;
                             this.addToken("NRO", lexema, line);
                             estado = 0;
@@ -188,6 +249,8 @@ public class AnalisadorLexico {
                     case 6:
                         if (ReconhecedorCaracteres.isChar(caractere)) {
                             lexema += caractere;
+                            if(size-1==i)
+                                this.addToken("NMF", lexema, line);
                         } else {
                             this.addToken("NMF", lexema, line);
                             estado = 0;
@@ -245,6 +308,11 @@ public class AnalisadorLexico {
                             estado = 12;
                             inComment = true;
                             lineComment = line;
+                        }else{
+                            lexema+='/';
+                            this.addToken("ART", lexema, line);
+                            estado = 0;
+                            caractereExcedente = true;
                         }
                         break;
                     case 12:
@@ -260,6 +328,28 @@ public class AnalisadorLexico {
                             inComment = false;
                         }
                         break;
+                    case 14:
+                        if (caractere == '+') {
+                            lexema += caractere;
+                            this.addToken("ART", lexema, line);
+                            estado = 0;
+                        } else {
+                            caractereExcedente = true;
+                            this.addToken("ART", lexema, line);
+                            estado = 0;
+                        }
+                        break;
+                    case 15:
+                        if (caractere == '-') {
+                            lexema += caractere;
+                            this.addToken("ART", lexema, line);
+                            estado = 0;
+                        } else {
+                            caractereExcedente = true;
+                            this.addToken("ART", lexema, line);
+                            estado = 0;
+                        }
+                        break;
                     default:
                         lexema = "";
                         caractereExcedente = false;
@@ -268,9 +358,8 @@ public class AnalisadorLexico {
         }
         //se quando a leitura terminar o comentario ainda estiver aberto
         if (inComment) {
-            this.addToken("CoMF", lexema, lineComment);//comentario nao terminado/ mal formado
+            this.addToken("CoMF", "", lineComment);//comentario nao terminado/ mal formado
         }
-
         return analiseRet;
     }
 

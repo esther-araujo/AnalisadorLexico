@@ -1,1 +1,23 @@
-arquivo
+linha1=8!
+linha2!
+linha3{
+linha4&
+linha5|
+linha6<
+linha7<=
+linha8==
+linha9/linha8
+linha10||while
+linha11<10.22aaaa!
+linha12&&12.aaaa!
+linha13;15aaaa!
+8!linha14|a
+linha15&&
+linha16&8
+linha27=
+linha18 gaçlskdjfa/gçlkajsçlda açlgkaj sadfa 
+linha19//
+linha20<20
+linha21&&20.2!
+linha22++
+linha23for(int i = jota+w; i<size-1.5;i++)i--
