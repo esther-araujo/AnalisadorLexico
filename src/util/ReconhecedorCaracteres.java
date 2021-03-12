@@ -17,6 +17,10 @@ public class ReconhecedorCaracteres {
     public static boolean isUnderline(char c) {
         return c == 95;
     }
+    
+    public static boolean isValidSymbol(char c) {
+        return c!=34 && c >=32 && c<=126;
+    }
 
     public static boolean isDot(char c) {
         return c == 46;
