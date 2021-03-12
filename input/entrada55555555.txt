@@ -6,9 +6,9 @@ linha5|
 linha6<
 linha7<=
 linha8==
-linha9/linha8
+linha9/linha8_asfa45
 linha10||while
-linha11<10.22aaaa!
+linha11<10.22
 linha12&&12.aaaa!
 linha13;15aaaa!
 8!linha14|a
@@ -21,3 +21,8 @@ linha20<20
 linha21&&20.2!
 linha22++
 linha23for(int i = jota+w; i<size-1.5;i++)i--
+linha24 "opa \ç"
+linha25	"opa \ç\""
+linha26 "opa \ç \""
+linha27 "opa \ç
+linha28 "opa \"

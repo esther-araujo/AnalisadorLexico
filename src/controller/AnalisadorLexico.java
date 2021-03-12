@@ -160,6 +160,12 @@ public class AnalisadorLexico {
                                 this.addToken("ART", lexema, line);
                             }else
                                 estado = 15;
+                        } else if (caractere == '"'){
+                            lexema+=caractere;
+                            if(i==size-1)
+                                this.addToken("CMF", lexema, line);
+                            else
+                                estado = 16;
                         } else {
                             this.addToken("SIB",""+caractere, line);
                         }
@@ -349,6 +355,43 @@ public class AnalisadorLexico {
                             this.addToken("ART", lexema, line);
                             estado = 0;
                         }
+                        break;
+                    case 16:
+                        if(caractere == '\\') {
+                            if(i==size-1){
+                                this.addToken("CMF", lexema, line);
+                            }else
+                                estado = 17;
+                        }else if (ReconhecedorCaracteres.isValidSymbol(caractere)) {
+                            lexema += caractere;
+                            if(i==size-1)
+                                this.addToken("CMF", lexema, line);
+                        }else if(caractere=='"'){
+                            lexema+=caractere;
+                            this.addToken("CAD", lexema, line);
+                        }else{
+                            String temp = lexema;
+                            this.addToken("SIB", ""+caractere, line);
+                            lexema = temp;
+                            if(i==size-1)
+                                this.addToken("CMF", lexema, line);
+                        }
+                        break;
+                    case 17:
+                        if(caractere == '"'){
+                            lexema+='"';
+                        }else if(ReconhecedorCaracteres.isValidSymbol(caractere)){
+                            lexema+='\\';
+                            lexema+=caractere;
+                        }else{
+                            String temp = lexema +'\\';
+                            this.addToken("SIB", ""+caractere, line);
+                            lexema = temp;
+                        }
+                        if(i==size-1){
+                            this.addToken("CMF", lexema, line);
+                        }else
+                            estado = 16;
                         break;
                     default:
                         lexema = "";
