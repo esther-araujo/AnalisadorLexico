@@ -1,8 +1,14 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+Autores: Cleyton Almeida da Silva e Esther de Santana Araújo
+Componente Curricular: MI - Processadores de Linguagens de Programação
+Concluido em: 12/03/2021
+Declaramos que este código foi elaborado por nós de forma "individual" e não contém nenhum
+trecho de código de outro colega ou de outro autor, tais como provindos de livros e
+apostilas, e páginas ou documentos eletrônicos da Internet. Qualquer trecho de código
+de outra autoria que não a nossa está destacado com uma citação para o autor e a fonte
+do código, e estamos ciente que estes trechos não serão considerados para fins de avaliação.
  */
+
 package controller;
 
 import java.util.HashSet;
@@ -22,7 +28,7 @@ public class AnalisadorLexico {
     private String lexema;
     private static final HashSet<String> palavrasReservadas = new HashSet();
     private static final HashSet<String> delimitadores = new HashSet();
-    private boolean inComment = false;
+    private boolean inComment = false;//flag para indicar se a leitura está dentro de um comentario de bloco
 
     int estado = 0;
     int token = 0;
@@ -65,15 +71,22 @@ public class AnalisadorLexico {
 
     }
 
+    /**
+     * Efetua a leitura de arquivo que contém o código fonte que será analisado
+     * @param linhas linhas do arquivo txt
+     * @return 
+     */
     public String analise(Iterator linhas) {
         analiseRet="";
         this.linhas = linhas;
         int line = 0;
         int lineComment = 0;
         inComment= false;
+        //percorrendo as linhas
         while (linhas.hasNext()) {
             line++;
             linha = (String) linhas.next();
+            
             if (inComment) {
                 estado = 12;
             } else {
@@ -309,10 +322,10 @@ public class AnalisadorLexico {
                         break;
                     case 11:
                         if (caractere == '/') {
-                            i = size + 1;//saindo do laço que percorre a linha
+                            i = size + 1;//saindo do laço que percorre a linha (comentário de linha é identificado)
                         } else if (caractere == '*') {
                             estado = 12;
-                            inComment = true;
+                            inComment = true;//comentário de bloco esta aberto
                             lineComment = line;
                         }else{
                             lexema+='/';
@@ -331,7 +344,7 @@ public class AnalisadorLexico {
                     case 13:
                         if (caractere == '/') {
                             estado = 0;
-                            inComment = false;
+                            inComment = false;//comentário de bloco foi fechado
                         }
                         break;
                     case 14:
@@ -406,6 +419,9 @@ public class AnalisadorLexico {
         return analiseRet;
     }
 
+    /*
+    Método que adiciona os Tokens a variável de retorno
+    */
     public void addToken(String id, String lexema, int line) {
         Token t = new Token(id, lexema, line);
         analiseRet += t + "\n";
