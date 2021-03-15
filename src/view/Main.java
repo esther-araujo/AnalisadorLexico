@@ -18,12 +18,14 @@ import java.util.logging.Logger;
 import util.CaminhoInvalidoException;
 import util.SemEntradasException;
 
-public class Main {
+public class Main{
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         try {
             String path = new File(".").getCanonicalPath().endsWith("dist") ? "../" : "";
             ControllerFluxoAnalise controllerFluxoAnalise= new ControllerFluxoAnalise(path+"input/", path+"output/");
+            
+            //Possibilita executar o programa pela raiz ou pela pasta dist (Executando pelo .jar)
             controllerFluxoAnalise.comecarAnalise();
             System.out.println("Executado com sucesso");
         } catch (SemEntradasException ex) {
@@ -32,7 +34,7 @@ public class Main {
             System.out.println("O caminho informado para a pasta de entrada e/ou saída é inválido");
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
     
 }

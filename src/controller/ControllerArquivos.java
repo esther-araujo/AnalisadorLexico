@@ -20,8 +20,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import model.Arquivo;
 import util.ReconhecedorCaracteres;
 import util.SemEntradasException;

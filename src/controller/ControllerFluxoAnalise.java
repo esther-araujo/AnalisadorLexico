@@ -42,11 +42,10 @@ public class ControllerFluxoAnalise {
     
     public void comecarAnalise(){
         arquivos.forEach((Arquivo arq)->{//Itera os arquivos de entrada passando-os pela análise léxica.
-            String ret = "";
-            ret=analisadorLexico.analise(arq.getConteudo());//Pega a o conjunto de tokens gerados pelo conteúdo do arquivo.
+            String ret = analisadorLexico.analise(arq.getConteudo());//Pega a o conjunto de tokens gerados pelo conteúdo do arquivo.
             String outputFile = "saida";
             String inputFile = arq.getNome();
-            int i = 0;
+            int i;
             for(i = inputFile.length()-1;i>=0;i--){//Encontra a parte "/entradaX.txt" do nome.
                 if(inputFile.charAt(i)=='/')
                     break;
