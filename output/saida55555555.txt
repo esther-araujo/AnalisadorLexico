@@ -87,17 +87,16 @@
 0023 DEL )
 0023 IDE i
 0023 ART --
-0024 IDE linha24
 0024 SIB ç
 0024 CAD "opa \"
-0025 IDE linha25
 0025 SIB ç
-0025 CAD "opa \""
-0026 IDE linha26
+0025 CAD "opa \\""
 0026 SIB ç
-0026 CAD "opa \ ""
-0027 IDE linha27
+0026 CAD "opa \ \""
 0027 SIB ç
 0027 CMF "opa \
-0028 IDE linha28
-0028 CMF "opa "
+0028 CMF "opa \"
+0029 IDE eita
+0029 SIB ã
+0029 CMF "Cadeia & troll no pode ter \n
+0030 CMF "

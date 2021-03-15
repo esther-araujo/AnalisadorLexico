@@ -11,6 +11,10 @@ do código, e estamos ciente que estes trechos não serão considerados para fin
 
 package view;
 import controller.ControllerFluxoAnalise;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.CaminhoInvalidoException;
 import util.SemEntradasException;
 
@@ -18,12 +22,16 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            ControllerFluxoAnalise controllerFluxoAnalise= new ControllerFluxoAnalise("input/", "output/");
+            String path = new File(".").getCanonicalPath().endsWith("dist") ? "../" : "";
+            ControllerFluxoAnalise controllerFluxoAnalise= new ControllerFluxoAnalise(path+"input/", path+"output/");
             controllerFluxoAnalise.comecarAnalise();
+            System.out.println("Executado com sucesso");
         } catch (SemEntradasException ex) {
             System.out.println("Não há arquivos de entrada.");
         } catch (CaminhoInvalidoException ex) {
             System.out.println("O caminho informado para a pasta de entrada e/ou saída é inválido");
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     

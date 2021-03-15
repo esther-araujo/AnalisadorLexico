@@ -68,7 +68,6 @@ public class AnalisadorLexico {
         delimitadores.add("{");
         delimitadores.add("}");
         delimitadores.add(".");
-
     }
 
     /**
@@ -373,8 +372,10 @@ public class AnalisadorLexico {
                         if(caractere == '\\') {
                             if(i==size-1){
                                 this.addToken("CMF", lexema, line);
-                            }else
+                            }else{
+                                lexema += caractere;
                                 estado = 17;
+                            }
                         }else if (ReconhecedorCaracteres.isValidSymbol(caractere)) {
                             lexema += caractere;
                             if(i==size-1)
@@ -394,10 +395,9 @@ public class AnalisadorLexico {
                         if(caractere == '"'){
                             lexema+='"';
                         }else if(ReconhecedorCaracteres.isValidSymbol(caractere)){
-                            lexema+='\\';
                             lexema+=caractere;
                         }else{
-                            String temp = lexema +'\\';
+                            String temp = lexema;
                             this.addToken("SIB", ""+caractere, line);
                             lexema = temp;
                         }

@@ -23,9 +23,16 @@ public class ControllerFluxoAnalise {
     AnalisadorLexico analisadorLexico;
     String outputPath;
     
+    /**
+     * Esta classe irá controlar o fluxo da análise. Futuramente, ela controlará o fluxo de compilação.
+     * @param inputPath Caminho para os arquivos de entrada.
+     * @param outputPath Caminho para os arquivos de saída.
+     * @throws SemEntradasException Caso não haja arquivos de entrada.
+     * @throws CaminhoInvalidoException caso o caminho seja inválido.
+     */
     public ControllerFluxoAnalise(String inputPath,String outputPath ) throws SemEntradasException, CaminhoInvalidoException{
         this.arquivoController = ControllerArquivos.getInstance(inputPath);
-        this.arquivos = arquivoController.getArquivos();
+        this.arquivos = arquivoController.getArquivos();//Pega todos os arquivos com nome apropriado na pasta de entrada.
         this.outputPath=outputPath;
         analisadorLexico = new AnalisadorLexico();
         if(!arquivoController.isFolder(outputPath)||!arquivoController.isFolder(inputPath)){
@@ -34,16 +41,21 @@ public class ControllerFluxoAnalise {
     }
     
     public void comecarAnalise(){
-        arquivos.forEach((Arquivo arq)->{
+        arquivos.forEach((Arquivo arq)->{//Itera os arquivos de entrada passando-os pela análise léxica.
             String ret = "";
-            ret=analisadorLexico.analise(arq.getConteudo());
+            ret=analisadorLexico.analise(arq.getConteudo());//Pega a o conjunto de tokens gerados pelo conteúdo do arquivo.
             String outputFile = "saida";
             String inputFile = arq.getNome();
-            for(int i = 13;inputFile.charAt(i) !='.';i++){
+            int i = 0;
+            for(i = inputFile.length()-1;i>=0;i--){//Encontra a parte "/entradaX.txt" do nome.
+                if(inputFile.charAt(i)=='/')
+                    break;
+            }
+            for(i += 8;inputFile.charAt(i) !='.';i++){//Adiciona o X que indica o número da entrada ao nome do arquivo de saída.
                 outputFile+=inputFile.charAt(i);
             }
             try {
-                arquivoController.escreverArquivo(outputPath+outputFile+".txt", ret);
+                arquivoController.escreverArquivo(outputPath+outputFile+".txt", ret);//Concluída a análise, cria o arquivo de saída correspondente.
             } catch (IOException ex) {
                 System.out.println("Não foi possível criar o arquivo "+outputPath+outputFile+".txt");
             }
