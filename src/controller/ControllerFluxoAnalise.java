@@ -42,7 +42,7 @@ public class ControllerFluxoAnalise {
     
     public void comecarAnalise(){
         arquivos.forEach((Arquivo arq)->{//Itera os arquivos de entrada passando-os pela análise léxica.
-            String ret = analisadorLexico.analise(arq.getConteudo());//Pega a o conjunto de tokens gerados pelo conteúdo do arquivo.
+            String ret = analisadorLexico.analise(arq);//Pega a o conjunto de tokens gerados pelo conteúdo do arquivo.
             String outputFile = "saida";
             String inputFile = arq.getNome();
             int i;

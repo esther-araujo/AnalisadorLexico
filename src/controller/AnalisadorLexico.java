@@ -13,6 +13,7 @@ package controller;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import model.Arquivo;
 import model.Token;
 import util.ReconhecedorCaracteres;
 import util.SemEntradasException;
@@ -69,11 +70,12 @@ public class AnalisadorLexico {
     }
 
     /**
-     * Efetua a leitura de arquivo que contém o código fonte que será analisado
-     * @param linhas linhas do arquivo txt
+     * Efetua a análise de arquivo que contém o código fonte de entrada.
+     * @param arquivo arquivo a ser analisado.
      * @return 
      */
-    public String analise(Iterator linhas) {
+    public String analise(Arquivo arquivo) {
+        Iterator linhas = arquivo.getConteudo();
         boolean inComment = false;//flag para indicar se a leitura está dentro de um comentario de bloco
         analiseRet="";
         int line = 0;//Carrega o número da linha do arquivo em que está a análise.
@@ -127,12 +129,14 @@ public class AnalisadorLexico {
                             lexema += caractere;
                             if(i==size-1){
                                 this.addToken("OpMF", lexema, line);//Fim de linha => Apenas 1 | => Operador mal formado
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);//Incrementa o número de erros léxicos no arquivo.
                             }else
                                 estado = 7;//Tenta formar token Operador Lógico.
                         } else if (caractere == '&') {
                             lexema += caractere;
                             if(i==size-1){//Equivalente ao Operador ||
                                 this.addToken("OpMF", lexema, line);
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                             }else
                                 estado = 8;
                         } else if (caractere == '!') {
@@ -174,12 +178,14 @@ public class AnalisadorLexico {
                                 estado = 15;
                         } else if (caractere == '"'){//'"' indica formação de cadeia de caracteres..
                             lexema+=caractere;
-                            if(i==size-1)//Havendo apenas a abertuda da cadeia, ela é mal formada.
+                            if(i==size-1){//Havendo apenas a abertuda da cadeia, ela é mal formada.
                                 this.addToken("CMF", lexema, line);
-                            else
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
+                            }else
                                 estado = 16;//Reconhecimento de cadeia.
                         } else {//Caso não seja início de token válido, diz-se um Símbolo inválido, código SIB.
                             this.addToken("SIB",""+caractere, line);
+                            arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                         }
                         break;
                     case 1:
@@ -211,9 +217,10 @@ public class AnalisadorLexico {
                     case 3://Já recebeu um caractere do tipo Digito.
                         if (ReconhecedorCaracteres.isChar(caractere)) {//Caso receba uma letra, irá gerar token Número Mal Formado.
                             lexema += caractere;
-                            if(size-1==i)
+                            if(size-1==i){
                                 this.addToken("NMF", lexema, line);
-                            else
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
+                            }else
                                 estado = 6;//Caso não seja fim de linha, aguardar-se-á o fim das letras a fim de gerar o token de erro.
                         } else if (ReconhecedorCaracteres.isDigit(caractere)) {//Caso receba um digito, concatena-o.
                             lexema += caractere;
@@ -221,9 +228,10 @@ public class AnalisadorLexico {
                                 this.addToken("NRO", lexema, line);
                         } else if (ReconhecedorCaracteres.isDot(caractere)) {//Recebendo um ponto, concatena-o e vai para o estado 4.
                             lexema += caractere;
-                            if(size-1==i)//Um fim de linha do tipo "digito*." indica erro.
+                            if(size-1==i){//Um fim de linha do tipo "digito*." indica erro.
                                 this.addToken("NMF", lexema, line);
-                            else
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
+                            }else
                                 estado = 4;
                         } else {//Recebendo qualquer outra coisa, volta ao estado 0, gera o token Numérico.
                             estado = 0;
@@ -239,12 +247,14 @@ public class AnalisadorLexico {
                             else
                                 estado = 5;//Sendo digito, vaipara o estado 5.
                         }else if(ReconhecedorCaracteres.isChar(caractere)){
-                            if(size-1==i)
+                            if(size-1==i){
                                 this.addToken("NMF", lexema, line);
-                            else
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
+                            }else
                                 estado = 6;//Sendo letra, vai para estado 6 e concatena próximas letras.
                         }else{
                             this.addToken("NMF", lexema, line);
+                            arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                             caractereExcedente = true; //Recebendo qualquer outro caractere após o ponto, gera token NMF.
                             estado = 0;
                         }
@@ -257,9 +267,10 @@ public class AnalisadorLexico {
                                 this.addToken("NRO", lexema, line);
                         } else if(ReconhecedorCaracteres.isChar(caractere)){
                             lexema += caractere;
-                            if(size-1==i)
+                            if(size-1==i){
                                 this.addToken("NMF", lexema, line);
-                            else
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
+                            }else
                                 estado = 6;
                         }else{
                             caractereExcedente = true;
@@ -270,10 +281,13 @@ public class AnalisadorLexico {
                     case 6://Enquanto receber letras, permanece concatenando. Ao final, gera NMF.
                         if (ReconhecedorCaracteres.isChar(caractere)) {
                             lexema += caractere;
-                            if(size-1==i)
+                            if(size-1==i){
                                 this.addToken("NMF", lexema, line);
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
+                            }
                         } else {
                             this.addToken("NMF", lexema, line);
+                            arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                             estado = 0;
                             caractereExcedente=true;
                         }
@@ -286,6 +300,7 @@ public class AnalisadorLexico {
                         } else {
                             lexema += caractere;
                             this.addToken("OpMF", lexema, line);
+                            arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                             estado = 0;
                         }
                         break;
@@ -297,6 +312,7 @@ public class AnalisadorLexico {
                         } else {
                             lexema += caractere;
                             this.addToken("OpMF", lexema, line);
+                            arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                             estado = 0;
                         }
                         break;
@@ -375,23 +391,29 @@ public class AnalisadorLexico {
                         if(caractere == '\\') {//Caso receba '\', a próxima '"' não fechará a cadeia.
                             if(i==size-1){//Finalizando a linha sem terminar a cadeia de caracteres é uma má formação de Cadeia.
                                 this.addToken("CMF", lexema, line);
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                             }else{//No estado 17 irá ignorar a próxima '"'.
                                 lexema += caractere;
                                 estado = 17;
                             }
                         }else if (ReconhecedorCaracteres.isValidSymbol(caractere)) {//Verifica se o caractere é válido na cadeia.   
                             lexema += caractere;
-                            if(i==size-1)
+                            if(i==size-1){
                                 this.addToken("CMF", lexema, line);
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
+                            }
                         }else if(caractere=='"'){//Fim de cadeia.
                             lexema+=caractere;
                             this.addToken("CAD", lexema, line);
                         }else{//Símbolo inválido dentro da cadeia. Será removido como SIB e a cadeia será formada sem ele.
                             String temp = lexema;
                             this.addToken("SIB", ""+caractere, line);
+                            arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                             lexema = temp;
-                            if(i==size-1)
+                            if(i==size-1){
                                 this.addToken("CMF", lexema, line);
+                                arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
+                            }
                         }
                         break;
                     case 17://Recebida uma '\' no meio da cadeia.
@@ -402,10 +424,12 @@ public class AnalisadorLexico {
                         }else{
                             String temp = lexema;
                             this.addToken("SIB", ""+caractere, line);
+                            arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                             lexema = temp;
                         }
                         if(i==size-1){//Caso tenha acabado a linha, gera CMF.
                             this.addToken("CMF", lexema, line);
+                            arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
                         }else//Caso contrário, volta para aguardar o encerramenteo da cadeia.
                             estado = 16;
                         break;
@@ -417,8 +441,10 @@ public class AnalisadorLexico {
         }
         //se quando a leitura terminar o comentario ainda estiver aberto
         if (inComment) {
-            this.addToken("CoMF", "", lineComment);//comentario nao terminado/ mal formado
+            this.addToken("CoMF", "", lineComment);//comentario nao terminado/ mal formado.
+            arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
         }
+        System.out.println("Análise léxica realizada "+(arquivo.getErrosLexicos()==0?"com":"sem")+" sucesso ("+String.format("%03d", arquivo.getErrosLexicos())+" erros léxicos encontrados) "+" no arquivos "+arquivo.getNome());
         return analiseRet;
     }
 

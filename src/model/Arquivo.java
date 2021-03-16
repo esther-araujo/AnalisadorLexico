@@ -16,10 +16,12 @@ import java.util.Iterator;
 public class Arquivo {
     private final String nome;
     private final Iterator conteudo;
+    int errosLexicos;
 
     public Arquivo(String nome, Iterator conteudo) {
         this.nome = nome;
         this.conteudo = conteudo;
+        errosLexicos=0;
     }
 
     public String getNome() {
@@ -28,6 +30,14 @@ public class Arquivo {
 
     public Iterator getConteudo() {
         return conteudo;
+    }
+
+    public int getErrosLexicos() {
+        return errosLexicos;
+    }
+
+    public void setErrosLexicos(int errosLexicos) {
+        this.errosLexicos = errosLexicos;
     }
     
 }
