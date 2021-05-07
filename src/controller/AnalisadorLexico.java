@@ -359,11 +359,18 @@ public class AnalisadorLexico {
                             estado = 13;
                         break;
                     case 13:
-                        if (caractere == '/') {
-                            estado = 0;
-                            inComment = false;//comentário de bloco foi fechado
-                        }else //Não encontrada a sequência "*/", volta para estado 12, esperando por '*'
-                            estado = 12;
+                        switch (caractere) {
+                            case '/':
+                                estado = 0;
+                                inComment = false;//comentário de bloco foi fechado
+                                break;
+                            case '*':
+                                estado = 13;//Não encontrada a sequência */ mas o caractere atual pode formá-la;
+                                break;
+                            default:
+                                estado = 12;
+                                break;
+                        }
                         break;
                     case 14:
                         if (caractere == '+') {//Recebeu "++".
