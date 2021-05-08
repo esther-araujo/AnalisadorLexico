@@ -168,6 +168,7 @@ public class AnalisadorLexico {
                             }else//Distinguir, no estado 11, entre "/**/", "//" e '/'
                                 estado = 11;
                         }else if(caractere == '*'){//Estando no estado 0, '*' forma Operador Aritmético.
+                            lexema += caractere;
                             this.addToken("ART", lexema, line);
                         } else if (caractere == '+') {//Distinguir-se-á entre '+' e "++".
                             lexema += caractere;
