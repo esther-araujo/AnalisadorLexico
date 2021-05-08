@@ -11,8 +11,10 @@ do código, e estamos ciente que estes trechos não serão considerados para fin
 
 package controller;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import javafx.util.Pair;
 import model.Arquivo;
 import model.Token;
 import util.ReconhecedorCaracteres;
@@ -28,8 +30,9 @@ public class AnalisadorLexico {
     //
     private static final HashSet<String> palavrasReservadas = new HashSet();
     private static final HashSet<String> delimitadores = new HashSet();
-
-    int estado = 0;
+	private final ArrayList<Token> tokens;
+    
+	int estado = 0;
     int token = 0;
     boolean fimCodigo = false;
     private String analiseRet = "";
@@ -67,6 +70,7 @@ public class AnalisadorLexico {
         delimitadores.add("{");
         delimitadores.add("}");
         delimitadores.add(".");
+        tokens = new ArrayList();
     }
 
     /**
@@ -74,7 +78,8 @@ public class AnalisadorLexico {
      * @param arquivo arquivo a ser analisado.
      * @return 
      */
-    public String analise(Arquivo arquivo) {
+	public Pair<ArrayList, String> analise(Arquivo arquivo) {
+        tokens.clear();
         Iterator linhas = arquivo.getConteudo();
         boolean inComment = false;//flag para indicar se a leitura está dentro de um comentario de bloco
         analiseRet="";
@@ -154,9 +159,9 @@ public class AnalisadorLexico {
                         } else if (caractere == '=') {//Semelhante ao caso anterior, dintinguindo entre '=' ou "==".
                             lexema += caractere;
                             if(i==size-1){
-                                this.addToken("REL", lexema, line);
+                                this.addToken("ATRIB", lexema, line);
                             }else
-                                estado = 10;//O tratamento é igual ao do caso anterior, pode-se ir ao mesmo estado.
+                                estado = 18;//O tratamento é igual ao do caso anterior, pode-se ir ao mesmo estado.
                         } else if (caractere == '/') {
                             if(i==size-1){
                                 this.addToken("ART", lexema, line);//Operador Aritmético, caso seja apenas '/'.
@@ -440,6 +445,17 @@ public class AnalisadorLexico {
                         }else//Caso contrário, volta para aguardar o encerramenteo da cadeia.
                             estado = 16;
                         break;
+                    case 18: 
+                        if (caractere == '=') {
+                            lexema += caractere;//Lexema possui "=="
+                            this.addToken("REL", lexema, line);
+                            estado = 0;
+                        } else {
+                            caractereExcedente = true;//Caractere excedente tratado em estado 0.
+                            this.addToken("ATRIB", lexema, line); // Lexema possui "="
+                            estado = 0;
+                        }
+                        break;
                     default://Caso caia em um estado não determinístico, volta para 
                         lexema = "";
                         caractereExcedente = false;
@@ -452,7 +468,11 @@ public class AnalisadorLexico {
             arquivo.setErrosLexicos(arquivo.getErrosLexicos()+1);
         }
         System.out.println("Análise léxica realizada "+(arquivo.getErrosLexicos()==0?"com":"sem")+" sucesso ("+String.format("%03d", arquivo.getErrosLexicos())+" erros léxicos encontrados) "+" no arquivos "+arquivo.getNome());
-        return analiseRet;
+        return new Pair<>(tokens, analiseRet);
+    }
+	
+	public Iterator getTokens(){
+        return tokens.iterator();
     }
 
     /*
@@ -460,7 +480,9 @@ public class AnalisadorLexico {
     */
     private void addToken(String id, String lexema, int line) {
         Token t = new Token(id, lexema, line);
+        tokens.add(t);
         analiseRet += t + "\n";
+        
         this.lexema = "";
     }
 }

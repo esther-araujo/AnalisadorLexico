@@ -1,18 +1,30 @@
-// Testes de comentario
-var
-{
-int a;
-int x;
-// real //s ;
-real b;
-}
-start
-{
-/*
-s = -1.3; **/
-b = /* numero real */ 1.2;
-a = // /*-1;
-b = 5$; */
-/*
+typedef struct Pessoa Pessoa;
+typedef string frase;
+
+var{
+	int i[2] = [false,true], j = false;
+	real i = false,k=true, k[3]=[urubu,sem,asa], l;
+	int i[2][3]=[[false,true, zip, zop],[biri, flinston],[opa],[eita]], joao=i,false1 =  j;
+	int i[2*90] = [false,true], j = false;
+	real i = false,k=true, k[3]=[urubu,sem,asa], l;
+	int i[2][3]=[[false,true, zip, zop],[biri, flinston],[opa],[eita]], joao=i,false1 =  j;
 
 }
+
+const{
+	int i = false, j = true;
+	real i = reali, joao = safe;
+	int i[2]=[opa,zap];
+	int i[2] = [false,true], j = false;
+	real i = false,k=true, k[3]=[urubu,sem,asa];
+	int i[2][3]=[[false,true, zip, zop],[biri, flinston],[opa],[eita]], joao=i,false1 =  j;
+
+}
+
+procedure start(){
+    var{
+        struct Pessoa xablau;
+    }
+    read(i);
+}
+

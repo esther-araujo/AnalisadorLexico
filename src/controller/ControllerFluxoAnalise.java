@@ -12,7 +12,9 @@ do código, e estamos ciente que estes trechos não serão considerados para fin
 package controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import javafx.util.Pair;
 import model.Arquivo;
 import util.CaminhoInvalidoException;
 import util.SemEntradasException;
@@ -42,7 +44,9 @@ public class ControllerFluxoAnalise {
     
     public void comecarAnalise(){
         arquivos.forEach((Arquivo arq)->{//Itera os arquivos de entrada passando-os pela análise léxica.
-            String ret = analisadorLexico.analise(arq);//Pega a o conjunto de tokens gerados pelo conteúdo do arquivo.
+            Pair<ArrayList,String> par = analisadorLexico.analise(arq);//Pega a o conjunto de tokens gerados pelo conteúdo do arquivo.
+            ArrayList tokens = par.getKey();
+            String ret = par.getValue();
             String outputFile = "saida";
             String inputFile = arq.getNome();
             int i;
